@@ -1,70 +1,5 @@
 #include "msp430G2553.h"
 
-/*void main(void){
-
-  WDTCTL = WDTPW + WDTHOLD; // Stop WDT
-
-	P1DIR |= BIT1 + BIT6; // P1.1 e P1.6 como output
-	P1SEL |= BIT1 + BIT6; // P1.1 para TA0.0 e P1.6 para TA0.1
-
-	TACCTL0 = OUTMOD_7; // CCR1 reset/set
-	TACCR0 = 1000-1; // PWM Period
-
-	TACCTL1 = OUTMOD_7; // CCR1 reset/set
-	TACCR1 = 5; // CCR1 PWM duty cycle
-
-	TACTL = TASSEL_2 + MC_1; // SMCLK, up mode
-
-	_BIS_SR(LPM0_bits); // Enter LPM0
-}
-
-
-
-void main(void){
-
-	WDTCTL = WDTPW + WDTHOLD; // Stop WDT
-
-
-	P1DIR |= BIT6; // P1.6 to output
-	P1SEL |= BIT6; // P1.6 to TA0.1
-
-//	P2DIR |= (BIT6); // P2.6 to output
-//	P2SEL2 = 0;
-//	P2SEL |= (BIT6); // P2.6 to TA0.1
-//	P2REN = 1;
-
-
-/*	CCR0 = 1000-1; // PWM Period
-	CCTL1 = OUTMOD_7; // CCR1 reset/set
-
-	CCR1 = 5; // CCR1 PWM duty cycle
-//	CCR2 = 750; // CCR1 PWM duty cycle
-	
-	TACTL = TASSEL_2 + MC_1 + ID_0;
-	/* TACTL = 0x0200 + 0x0010 = 0x0210
-	 * TASSEL_2 -> SMCLK como fonte de clock para o timer
-	 * MC_1		-> up mode: timer conta até o valor de CCR0
-	 * ID_0		-> entrada de clock dividida por 1
-
-
-	TACCR0 = 1000-1; // PWM Period
-	TACCTL1 = OUTMOD_7; // CCR1 reset/set
-//	TACCTL2 = OUTMOD_7; // CCR2 reset/set
-
-	TACCR1 = 500;   // CCR1 PWM duty cycle
-//	TACCR2 = 750; 	 // CCR1 PWM duty cycle
-
-	TACTL = TASSEL_2 + MC_1 + ID_0;
-	/* TACTL = 0x0200 + 0x0010 = 0x0210
-	 * TASSEL_2 -> SMCLK como fonte de clock para o timer
-	 * MC_1		-> up mode: timer conta até o valor de CCR0
-	 * ID_0		-> entrada de clock dividida por 1
-
-
-	_BIS_SR(LPM0_bits); // Enter LPM0
-
-} */
-
 // protótipo de funções
 void FaultRoutine(void);		//
 void ConfigWDT(void);			// Configuração do Watchdog
@@ -94,12 +29,10 @@ void main(void){
 		}
 	}
 
-	///_BIS_SR(LPM0_bits); // Enter LPM0
-
 }
 
 void FaultRoutine(void) {
-	while(1); 			         		// TRAP
+	while(1);      		// TRAP
  }
 
 void ConfigWDT(void) {
@@ -149,43 +82,39 @@ void ConfigClocks(void){
 
 
 	if (CALBC1_16MHZ ==0xFF || CALDCO_16MHZ == 0xFF) 	// verifica se os valores de calibração do Clock é válido
-		FaultRoutine();		         					// se não for válido então entra nessa rotina
+		FaultRoutine();		         		// se não for válido então entra nessa rotina
 
-	BCSCTL1 = CALBC1_16MHZ; 		   					// Configuração da faixa DCO
-	DCOCTL  = CALDCO_16MHZ;  		   					// Configuração dos DCO step e Modulo
+	BCSCTL1 = CALBC1_16MHZ; 		   		// Configuração da faixa DCO
+	DCOCTL  = CALDCO_16MHZ;  		   		// Configuração dos DCO step e Modulo
 
-	BCSCTL3 |= LFXT1S_2;                 				// LFXT1 = VLO
-	IFG1 &= ~OFIFG;                      				// Clear OSCFault flag
-	BCSCTL2 |= SELM_0 + DIVM_3 + DIVS_3; 				// MCLK = DCO/8, SMCLK = DCO/8
+	BCSCTL3 |= LFXT1S_2;                 			// LFXT1 = VLO
+	IFG1 &= ~OFIFG;                      			// Reseta OSCFault flag
+	BCSCTL2 |= SELM_0 + DIVM_3 + DIVS_3; 			// MCLK = DCO/8, SMCLK = DCO/8
  }
 
 void ConfigPins(void){
 	// PxDIR -> direção do pino (1=saída; 0=entrada)
 
-	P1DIR = ~BIT3;          			// P1.3 como entrada, demais como saída
+	P1DIR = ~BIT3;          				// P1.3 como entrada, demais como saída
 	P1REN = BIT3;						// Habilita resistor pullup/pulldown
-	P1OUT = BIT3;              			// seleciona pullup para P1.3
+	P1OUT = BIT3;              				// seleciona pullup para P1.3
 
 	P1IES = BIT3;						// interrupção a ser gerada transição High-to-Low (IES-Interrupt Edge Selection)
-	P1IE = BIT3;							// habilita interrupção pelo pino (IE-Interrupt enable)
+	P1IE = BIT3;						// habilita interrupção pelo pino (IE-Interrupt enable)
 
 
-	P2DIR |= (BIT2+BIT4); // P2.2 e P2.4 como output
+	P2DIR |= (BIT2+BIT4); 					// P2.2 e P2.4 como output
 	P2SEL2 = 0;
-	P2SEL |= (BIT2+BIT4); // P2.2 para TA1.1 e P2.4 para TA1.2
-//	P2REN = 1;
-
-
-
+	P2SEL |= (BIT2+BIT4); 					// P2.2 para TA1.1 e P2.4 para TA1.2
 }
 
 void ConfigTimerA1(void){
-	TA1CCR0 = PWM_periodo-1; 		// PWM Period
-	TA1CCTL1 = OUTMOD_7; 	// CCR1 reset/set
-	TA1CCTL2 = OUTMOD_7; 	// CCR2 reset/set
+	TA1CCR0 = PWM_periodo-1; 		// PWM Periodo
+	TA1CCTL1 = OUTMOD_7; 			// CCR1 reset/set
+	TA1CCTL2 = OUTMOD_7; 			// CCR2 reset/set
 
-	TA1CCR1 = 800;   		// CCR1 PWM duty cycle
-	TA1CCR2 = 800; 	 		// CCR2 PWM duty cycle
+	TA1CCR1 = 800;   			// CCR1 PWM duty cycle
+	TA1CCR2 = 800; 	 			// CCR2 PWM duty cycle
 
 	TA1CTL = TASSEL_2 + MC_1 + ID_0;
 	/* TACTL = 0x0200 + 0x0010 = 0x0210
@@ -196,7 +125,7 @@ void ConfigTimerA1(void){
 }
 
 void ConfigPWM(unsigned int value1, unsigned int value2){
-	TA1CCR1 = value1;   		// CCR1 PWM duty cycle
+	TA1CCR1 = value1;   			// CCR1 PWM duty cycle
 	TA1CCR2 = value2; 	 		// CCR2 PWM duty cycle
 }
 
